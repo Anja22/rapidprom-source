@@ -105,6 +105,10 @@
                 <class>org.rapidprom.operators.conversion.ProcessTreeToPetriNetConversionOperator</class>
                 <icon>objects_transform.png</icon>
             </operator>
+            <operator>
+            	<key>convert_alignment_to_example_set</key>
+            	<class>org.rapidprom.operators.conversion.AlignmentToExampleSetOperator</class>
+            	<icon>objects_transform.png</icon></operator>
         </group>
         <group key="discovery">
             <operator>

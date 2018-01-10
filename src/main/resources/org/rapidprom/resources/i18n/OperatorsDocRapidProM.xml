@@ -382,8 +382,11 @@
         <help>A log is required for input</help>
     	<key>mine_fuzzy_model</key>
   	</operator>
-  	
-  	<!-- STREAMS -->
+	<operator>
+		<name>Alignment to Data Table (Exampleset)</name>
+		<key>convert_alignment_to_example_set</key></operator>
+
+	<!-- STREAMS -->
     <operator>
         <name>Generate Event Stream from CPN</name>
         <synopsis>Generate stream from CPN</synopsis>

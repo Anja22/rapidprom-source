@@ -352,7 +352,9 @@ public class ConformanceAnalysisOperator extends AbstractRapidProMDiscoveryOpera
 		XLogInfo summary = XLogInfoFactory.createLogInfo(log, eventClassifier);
 
 		for (XEventClass evClass : summary.getEventClasses().getClasses()) {
-			costMOT.put(evClass, 1);
+//			System.out.println(evClass);
+			costMOT.put(evClass, 5);
+			
 		}
 
 		return costMOT;

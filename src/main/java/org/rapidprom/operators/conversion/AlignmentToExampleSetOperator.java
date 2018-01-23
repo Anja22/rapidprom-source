@@ -9,8 +9,6 @@ import java.util.logging.Logger;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.extension.std.XConceptExtension;
-import org.deckfour.xes.model.XAttribute;
-import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
@@ -35,6 +33,7 @@ import com.rapidminer.operator.ports.InputPort;
 import com.rapidminer.operator.ports.OutputPort;
 import com.rapidminer.operator.ports.metadata.AttributeMetaData;
 import com.rapidminer.operator.ports.metadata.ExampleSetMetaData;
+import com.rapidminer.operator.ports.metadata.GenerateNewMDRule;
 import com.rapidminer.operator.ports.metadata.MDInteger;
 import com.rapidminer.tools.LogService;
 import com.rapidminer.tools.Ontology;
@@ -51,8 +50,11 @@ public class AlignmentToExampleSetOperator extends Operator {
 	private MemoryExampleTable table = null;
 	private LinkedList<String> alignmentMoves;
 	
+	
 	public AlignmentToExampleSetOperator(OperatorDescription description) {
 		super(description);
+		
+		getTransformer().addRule(new GenerateNewMDRule(exampleSetOutput, ExampleSet.class));
 	}
 
 	@Override
@@ -85,6 +87,7 @@ public class AlignmentToExampleSetOperator extends Operator {
             	}
 			}
 		
+		exampleSetOutput.deliverMD(metaData);
 		exampleSetOutput.deliver(es);
 		
 		logger.log(Level.INFO, "End: Alignment to Table conversion ("
@@ -190,10 +193,11 @@ public class AlignmentToExampleSetOperator extends Operator {
 	private MemoryExampleTable createStructureTable (XLog xlog, PNRepResult repResult) {
 		ExampleSetMetaData metaData = new ExampleSetMetaData();
 		List<Attribute> attributes = new LinkedList<Attribute>();
+		
 		LinkedList<String> alignmentMoves = getUniqueMoves(xlog, repResult);
 		
-		attributes.add(AttributeFactory.createAttribute("Traceidentifier", Ontology.STRING));
-		AttributeMetaData amd_0 = new AttributeMetaData("Traceidentifier", Ontology.STRING);
+		attributes.add(AttributeFactory.createAttribute("Traceidentifier", Ontology.NOMINAL));
+		AttributeMetaData amd_0 = new AttributeMetaData("Traceidentifier", Ontology.NOMINAL);
 		amd_0.setRole(AttributeColumn.REGULAR);
 		amd_0.setNumberOfMissingValues(new MDInteger(0));
 		metaData.addAttribute(amd_0);

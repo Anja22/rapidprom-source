@@ -384,7 +384,8 @@
   	</operator>
 	<operator>
 		<name>Alignment to Data Table (Exampleset)</name>
-		<key>convert_alignment_to_example_set</key></operator>
+		<key>convert_alignment_to_example_set</key>
+		<synopsis>This operator extracts the moves of the optimal alignment per trace and converts them to an ExampleSet</synopsis></operator>
 
 	<!-- STREAMS -->
     <operator>

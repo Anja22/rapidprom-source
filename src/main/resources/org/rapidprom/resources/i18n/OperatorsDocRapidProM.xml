@@ -385,7 +385,13 @@
 	<operator>
 		<name>Alignment to Data Table (Exampleset)</name>
 		<key>convert_alignment_to_example_set</key>
-		<synopsis>This operator extracts the moves of the optimal alignment per trace and converts them to an ExampleSet</synopsis></operator>
+		<synopsis>This operator extracts the moves of the optimal alignment per trace and converts them to an ExampleSet.</synopsis>
+	</operator>
+	<operator>
+		<name>Extract elements from tree (Exampleset)</name>
+		<key>extract_nodes_from_tree</key>
+		<synopsis>This operator extracts information about which element of the training set belongs to which leave of the tree.</synopsis>
+	</operator>
 
 	<!-- STREAMS -->
     <operator>

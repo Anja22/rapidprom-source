@@ -120,4 +120,6 @@ dependencies {
 	compile "org.rapidprom:Woflan:6.7.59"
 	compile "org.rapidprom:XESLite:6.7.217"
 	compile "org.rapidprom:Weka:6.7.3"
+	compile group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version: '3.8.0'
+	
 }

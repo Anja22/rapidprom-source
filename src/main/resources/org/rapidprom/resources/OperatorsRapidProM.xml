@@ -108,7 +108,13 @@
             <operator>
             	<key>convert_alignment_to_example_set</key>
             	<class>org.rapidprom.operators.conversion.AlignmentToExampleSetOperator</class>
-            	<icon>objects_transform.png</icon></operator>
+            	<icon>objects_transform.png</icon>
+            </operator>
+            <operator>
+            	<key>extract_nodes_from_tree</key>
+            	<class>org.rapidprom.operators.extract.ExtractNodesOperator</class>
+            	<icon>objects_transform.png</icon>
+            </operator>
         </group>
         <group key="discovery">
             <operator>

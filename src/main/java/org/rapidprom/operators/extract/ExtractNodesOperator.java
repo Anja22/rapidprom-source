@@ -4,12 +4,13 @@ import com.rapidminer.operator.IOObject;
 import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorDescription;
 import com.rapidminer.operator.OperatorException;
-import com.rapidminer.operator.learner.PredictionModel;
-import com.rapidminer.operator.learner.tree.Tree;
 import com.rapidminer.operator.learner.weka.WekaClassifier;
 import com.rapidminer.operator.ports.InputPort;
+
 import weka.classifiers.trees.J48;
-import weka8.classifiers.Classifier;
+
+//import weka.classifiers.trees.J48;
+//import weka8.classifiers.Classifier;
 
 public class ExtractNodesOperator extends Operator{
 	
@@ -26,8 +27,10 @@ public class ExtractNodesOperator extends Operator{
 		
 		IOObject object = modelInput.getAnyDataOrNull();
 		WekaClassifier wekaObject =  (WekaClassifier) object;
-		
-		
+		J48 tree = (J48) wekaObject.getClassifier();
+//		wekaObject.
+//		wekaObject.
+//		J48 tree = (J48) wekaObject;
 	}
 	
 }

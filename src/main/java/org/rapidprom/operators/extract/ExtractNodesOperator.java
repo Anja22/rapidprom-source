@@ -6,6 +6,7 @@ import com.rapidminer.operator.OperatorDescription;
 import com.rapidminer.operator.OperatorException;
 import com.rapidminer.operator.learner.PredictionModel;
 import com.rapidminer.operator.learner.tree.Tree;
+import com.rapidminer.operator.learner.weka.WekaClassifier;
 import com.rapidminer.operator.ports.InputPort;
 import weka.classifiers.trees.J48;
 import weka8.classifiers.Classifier;
@@ -24,9 +25,9 @@ public class ExtractNodesOperator extends Operator{
 	public void doWork() throws OperatorException {
 		
 		IOObject object = modelInput.getAnyDataOrNull();
-//		PredictionModel model = (PredictionModel) object;
-		Classifier tree =  (Classifier) object;
-//		J48 wekaTree = (J48) object;
+		WekaClassifier wekaObject =  (WekaClassifier) object;
+		
+		
 	}
 	
 }

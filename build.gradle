@@ -33,7 +33,10 @@ repositories {
 			artifact "[module]-[revision]/[module]-[revision].[ext]"
 			ivy "[module]-[revision]/ivy-[module]-[revision].xml"
 		}
-	}	
+	}
+	flatDir {
+		dirs 'libs'
+	}
 }
 
 extensionConfig {
@@ -71,7 +74,9 @@ extensionConfig {
     dependencies {
         rapidminer '7.2.0'
         //extension namespace: 'text', version: '7.2.0'
+        extension namespace: 'weka', version: '7.2.0'
     }
+    
 }
 
 // Define third party library dependencies

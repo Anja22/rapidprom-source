@@ -43,6 +43,13 @@
 		<renderer>org.rapidprom.ioobjectrenderers.PNRepResultIOObjectLogRenderer</renderer>
 	</ioobject>
 	<ioobject
+		name="ResultReplayProM"
+		class="org.rapidprom.ioobjects.ResultReplayIOObject"
+		reportable="true">
+		<renderer>org.rapidprom.ioobjectrenderers.ResultReplayIOObjectModelRenderer</renderer>
+		<renderer>org.rapidprom.ioobjectrenderers.ResultReplayIOObjectLogRenderer</renderer>
+	</ioobject>
+	<ioobject
 		name="InductiveVisualMinerLauncherProM"
 		class="org.rapidprom.ioobjects.InductiveVisualMinerLauncherIOObject"
 		reportable="true">

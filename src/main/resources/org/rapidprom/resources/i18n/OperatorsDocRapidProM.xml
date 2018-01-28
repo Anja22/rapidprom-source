@@ -316,6 +316,12 @@
 		<help>This operator replays a log onto a Data Petri net as described in &lt;a href="http://dx.doi.org/10.1007/s00607-015-0441-1"&gt;here&lt;/a&gt;.</help>
 		<key>data_conformance</key>
 	</operator>
+	<operator>  
+		<name>Data Conformance Checking (ResultReplay)</name>
+		<synopsis>This operator replays a log onto a Data Petri net.</synopsis>
+		<help>This operator replays a log onto a Data Petri net as described in &lt;a href="http://dx.doi.org/10.1007/s00607-015-0441-1"&gt;here&lt;/a&gt;.</help>
+		<key>data_conformance_resultrep</key>
+	</operator>
 	<operator>
 		<name>Petri Net to BPMN</name>
 		<synopsis>This operator transforms a Petri net into a BPMN diagram. The conversion used is described in &lt;a href="http://dx.doi.org/10.1007/s10270-015-0502-0"&gt;here&lt;/a&gt;.</synopsis>
@@ -489,7 +495,12 @@
 		<help>This operator can be used to execute the repair model algorithm which provides a repaired Petri net as result. As input an event log and a Petri Net are needed.</help>
 		<key>repair_model</key>
 	</operator>
-
+	
+	<operator>
+		<name>Repair Log with Respect to Alignment (Data Petri Net)</name>
+		<key>repair_log</key>
+	</operator>
+	
 	<operator>
 		<name>Reduce Silent Transitions (Petri Net)</name>
 		<synopsis>This operator can be used to reduce silent transitions using the Murata rules, as defined in &lt;a href="http://dx.doi.org/10.1109/5.24143"&gt;here&lt;/a&gt;. </synopsis>

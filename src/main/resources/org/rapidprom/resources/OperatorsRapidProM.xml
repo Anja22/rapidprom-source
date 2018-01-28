@@ -42,6 +42,11 @@
 			<icon>magnifying_glass.png</icon>
 		</operator>
 		<operator>
+			<key>repair_log</key>
+			<class>org.rapidprom.operators.analysis.RepairLogWithAlignmentOperator</class>
+			<icon>magnifying_glass.png</icon>
+		</operator>
+		<operator>
 			<key>reduce_silent_transitions</key>
 			<class>org.rapidprom.operators.analysis.ReduceSilentTransitionsOperator</class>
 			<icon>magnifying_glass.png</icon>
@@ -101,6 +106,11 @@
 		<operator>
 			<key>data_conformance</key>
 			<class>org.rapidprom.operators.conformance.DataConformanceOperator</class>
+			<icon>checks.png</icon>
+		</operator>
+		<operator>
+			<key>data_conformance_resultrep</key>
+			<class>org.rapidprom.operators.conformance.DataConformanceResultReplayOperator</class>
 			<icon>checks.png</icon>
 		</operator>
 		<operator>

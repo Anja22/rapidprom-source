@@ -21,7 +21,7 @@ repositories {
 		}
 	}
 	ivy {
-		url "https://github.com/rapidprom/rapidprom-libraries/raw/${project.properties["libs"]}/thirdparty/lib/
+		url "https://github.com/rapidprom/rapidprom-libraries/raw/${project.properties["libs"]}/thirdparty/lib/"
 		layout "pattern", {
 			artifact "[module]-[revision]/[module]-[revision].[ext]"
 			ivy "[module]-[revision]/ivy-[module]-[revision].xml"
@@ -34,15 +34,16 @@ repositories {
 			ivy "[module]-[revision]/ivy-[module]-[revision].xml"
 		}
 	}
-	flatDir {
-		dirs 'libs'
-	}
 	ivy {
 		url "http://github.com/edugonza/DatabaseProcessMining-Repository/raw/master/Releases/"
 		layout "pattern", {
 			artifact "[organisation]/[module]/[revision]/[module]-[revision].[ext]"
 			ivy "[organisation]/[module]/[revision]/[module]/ivy-[revision].xml"
 		}
+	}
+	
+	flatDir {
+		dirs 'libs'
 	}
 }
 

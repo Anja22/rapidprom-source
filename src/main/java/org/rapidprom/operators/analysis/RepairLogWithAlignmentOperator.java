@@ -1,7 +1,11 @@
 package org.rapidprom.operators.analysis;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,7 +15,9 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.util.ui.widgets.ProMCheckComboBox;
 import org.processmining.modelrepair.parameters.RepairConfiguration;
 import org.processmining.modelrepair.plugins.Uma_RepairModel_Plugin;
+import org.processmining.plugins.DataConformance.Alignment;
 import org.processmining.plugins.DataConformance.ResultReplay;
+import org.processmining.plugins.DataConformance.Alignment.AlignmentStep;
 import org.processmining.plugins.DataConformance.RepairLog.AlignmentBasedLogRepairParametersImpl;
 import org.processmining.plugins.DataConformance.RepairLog.RepairLog;
 import org.processmining.plugins.petrinet.behavioralanalysis.woflan.Woflan;
@@ -48,15 +54,17 @@ import com.rapidminer.tools.Ontology;
 
 public class RepairLogWithAlignmentOperator extends Operator {
 	
-	public static final String PARAMETER_ATTRIBUTES_LOGMOVE = "Log moves";
-	public static final String PARAMETER_ATTRIBUTES_MODELMOVE = "Process moves";
-	public static final String PARAMETER_ATTRIBUTES_SYNCNOGOODMOVE = "Synchronous moves with wrong write operations:";
-	private static final String PARAMETER_ATTRIBUTE_MODELMOVE = null;
-	private static final String PARAMETER_ATTRIBUTE_SYNCNOGOODMOVE = null;
+//	public static final String PARAMETER_ATTRIBUTES_LOGMOVE = "Log moves";
+//	public static final String PARAMETER_ATTRIBUTES_MODELMOVE = "Process moves";
+//	public static final String PARAMETER_ATTRIBUTES_SYNCNOGOODMOVE = "Synchronous moves with wrong write operations:";
+//	private static final String PARAMETER_ATTRIBUTE_MODELMOVE = null;
+//	private static final String PARAMETER_ATTRIBUTE_SYNCNOGOODMOVE = null;
 	
 	private InputPort alignmentInput = getInputPorts().createPort("alignments (ProM ResultReplay)", ResultReplayIOObject.class);
 	private InputPort modelInput = getInputPorts().createPort("model (DataPetriNet)", PetriNetIOObject.class);
+	//TODO add inputport for ruleIOObject
 	private OutputPort logOutput = getOutputPorts().createPort("event log (ProM Event Log)");
+	
 	
 	public RepairLogWithAlignmentOperator(OperatorDescription description) {
 		super(description);
@@ -86,27 +94,54 @@ public class RepairLogWithAlignmentOperator extends Operator {
 				"End: repair log with respect to alignment (" + (System.currentTimeMillis() - time) / 1000 + " sec)");
 	}
 	
-	@Override
-	public List<ParameterType> getParameterTypes() {
-		List<ParameterType> types = new LinkedList<ParameterType>();
-		
-//		ParameterType logMoves = new ParameterTypeAttributes(PARAMETER_ATTRIBUTES_LOGMOVE, "Log moves to consider when repairing logs:",
-//				alignmentInput, Ontology.STRING);
-//		logMoves.setExpert(false);
+//	@Override
+//	public List<ParameterType> getParameterTypes() {
+//		List<ParameterType> types = new LinkedList<ParameterType>();
+
+//		SortedSet<String> logMoves=new TreeSet<String>();
+//		SortedSet<String> modelMoves=new TreeSet<String>();
+//		SortedSet<String> synchNoGoodMoves=new TreeSet<String>();
+//
 //		
-////		ParameterType modelMoves = new ParameterTypeAttributes(PARAMETER_ATTRIBUTES_MODELMOVE, "Process moves to consider when repairing logs:",
-//				alignmentInput, Ontology.STRING);
+//		for (Alignment alignment : alignments.labelStepArray)
+//		{	
+//			Iterator<AlignmentStep> iterator = alignment.iterator();
+//			while(iterator.hasNext())
+//			{
+//				AlignmentStep align=iterator.next();
+//				switch(align.getType())
+//				{
+//					case L :
+//						logMoves.add(align.getLogView().getActivity());
+//						break;
+//					case LMNOGOOD :
+//						synchNoGoodMoves.add(align.getProcessView().getActivity());
+//						break;
+//					case MREAL :
+//						modelMoves.add(align.getProcessView().getActivity());
+//						break;
+//					default :
+//						break;					
+//				}
+//			}
+//		}
+//		String[] str = logMoves.toArray(new String[logMoves.size()]);
+//		ParameterType logMoves2 = new ParameterTypeCategory(PARAMETER_ATTRIBUTES_LOGMOVE, "Log moves to consider when repairing logs:",str,1,false);
+//		logMoves.setExpert(false);
+		
+//		ParameterType modelMoves = new ParameterTypeCategory(PARAMETER_ATTRIBUTES_MODELMOVE, "Process moves to consider when repairing logs:",
+//				);
 //		modelMoves.setExpert(false);
 //		
-////		ParameterType syncNoGoodMoves = new ParameterTypeAttributes(PARAMETER_ATTRIBUTES_SYNCNOGOODMOVE, "Synchronous moves with wrong write operations:",
-//				alignmentInput, Ontology.STRING);
+//		ParameterType syncNoGoodMoves = new ParameterTypeCategory(PARAMETER_ATTRIBUTES_SYNCNOGOODMOVE, "Synchronous moves with wrong write operations:",
+//				);
 //		syncNoGoodMoves.setExpert(false);
 //		
-//		types.add(logMoves);
+//		types.add(logMoves2);
 //		types.add(modelMoves);
-//		types.add(syncNoGoodMoves);
-		return types;
-	}
+////		types.add(syncNoGoodMoves);
+//		return types;
+//	}
 	
 	private AlignmentBasedLogRepairParametersImpl getConfiguration() {
 		
@@ -114,14 +149,16 @@ public class RepairLogWithAlignmentOperator extends Operator {
 		List<String[]> modelMoves = null;
 		List<String[]> syncMovesNoGood = null;
 		
-		try {
-			logMoves = getParameterList(PARAMETER_ATTRIBUTES_LOGMOVE);
-			modelMoves = getParameterList(PARAMETER_ATTRIBUTE_MODELMOVE);
-			syncMovesNoGood = getParameterList(PARAMETER_ATTRIBUTE_SYNCNOGOODMOVE);
-
-		} catch (UndefinedParameterError e) {
-			e.printStackTrace();
-		}
+//		try {
+//			logMoves = getParameterList(PARAMETER_ATTRIBUTES_LOGMOVE);
+//			modelMoves = getParameterList(PARAMETER_ATTRIBUTE_MODELMOVE);
+//			syncMovesNoGood = getParameterList(PARAMETER_ATTRIBUTE_SYNCNOGOODMOVE);
+//
+//		} catch (UndefinedParameterError e) {
+//			e.printStackTrace();
+//		}
+		
+		//TODO repair deviations except the ones associated to the better KPI
 		
 		AlignmentBasedLogRepairParametersImpl params = new AlignmentBasedLogRepairParametersImpl();
 		

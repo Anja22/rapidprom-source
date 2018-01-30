@@ -7,7 +7,7 @@ import com.rapidminer.operator.OperatorException;
 import com.rapidminer.operator.learner.weka.WekaClassifier;
 import com.rapidminer.operator.ports.InputPort;
 
-import weka.classifiers.Classifier;
+//import weka.classifiers.Classifier;
 //import weka.classifiers.trees.J48;
 
 //import weka.classifiers.Classifier;
@@ -30,14 +30,15 @@ public class ExtractNodesOperator extends Operator{
 		
 		IOObject object = modelInput.getAnyDataOrNull();
 		WekaClassifier wekaObject =  (WekaClassifier) object;
-		Classifier tree = wekaObject.getClassifier();
+//		Classifier tree = wekaObject.getClassifier();
 		boolean isCorrect =false;
+		System.out.println("Done");
 //		if(wekaObject.getClassifier() instanceof J48)
 //		{
 //			isCorrect = true;
 //		}
-		Object clsfr = wekaObject.getClassifier();
-		Object clas = clsfr.getClass();
+//		Object clsfr = wekaObject.getClassifier();
+//		Object clas = clsfr.getClass();
 		
 //		wekaObject.
 //		wekaObject.

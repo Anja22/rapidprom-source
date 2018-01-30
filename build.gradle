@@ -21,8 +21,8 @@ repositories {
 		}
 	}
 	ivy {
-		url "https://github.com/rapidprom/rapidprom-libraries/raw/${project.properties["libs"]}/thirdparty/lib/"
-		//url "https://github.com/Anja22/rapidprom-libraries/raw/4.0.2/thirdparty/lib"
+		//url "https://github.com/rapidprom/rapidprom-libraries/raw/${project.properties["libs"]}/thirdparty/lib/"
+		url "https://github.com/Anja22/rapidprom-libraries/raw/4.0.2/thirdparty/lib"
 		layout "pattern", {
 			artifact "[module]-[revision]/[module]-[revision].[ext]"
 			ivy "[module]-[revision]/ivy-[module]-[revision].xml"

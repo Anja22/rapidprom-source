@@ -7,23 +7,12 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.deckfour.xes.classification.XEventClass;
-import org.deckfour.xes.extension.std.XConceptExtension;
-import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
-import org.deckfour.xes.model.XTrace;
-import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.plugins.DataConformance.Alignment;
 import org.processmining.plugins.DataConformance.ResultReplay;
-import org.processmining.plugins.DataConformance.framework.ExecutionStep;
-import org.processmining.plugins.DataConformance.visualization.DataAwareStepTypes;
 import org.processmining.plugins.DataConformance.Alignment.AlignmentStep;
-import org.processmining.plugins.petrinet.replayresult.StepTypes;
-import org.processmining.plugins.replayer.replayresult.SyncReplayResult;
-import org.rapidprom.ioobjects.PNRepResultIOObject;
 import org.rapidprom.ioobjects.ResultReplayIOObject;
 import org.rapidprom.ioobjects.XLogIOObject;
-import org.rapidprom.operators.conformance.DataConformanceOperator;
 
 import com.rapidminer.example.Attribute;
 import com.rapidminer.example.ExampleSet;
@@ -119,23 +108,23 @@ public class AlignmentToExampleSetOperator extends Operator {
 				switch(step.getType())
 				{               
                       case LMGOOD:
-                    	  	label = step.getProcessView().getActivity();
-                            movesMap.put("Sync move " + label, movesMap.get("Sync move "+label)+1);  //numSynchronousMoves++
+                    	  	label = step.getProcessView().getActivity().replaceAll(" ", "_");
+                            movesMap.put("Sync_move_" + label, movesMap.get("Sync_move_"+label)+1);  //numSynchronousMoves++
                             break;
                            
                       case L :
-                            label = step.getLogView().getActivity();;
-                            movesMap.put("Move log " + label, movesMap.get("Move log "+label)+1);
+                            label = step.getLogView().getActivity().replaceAll(" ", "_");
+                            movesMap.put("Move_log_" + label, movesMap.get("Move_log_"+label)+1);
                             break; 
                            
                       case MINVI :
                     	  	break; 
                       case MREAL :
-                          	label = step.getProcessView().getActivity();  
-                          	movesMap.put("Move model " + label, movesMap.get("Move model " + label)+1);
+                          	label = step.getProcessView().getActivity().replaceAll(" ", "_");  
+                          	movesMap.put("Move_model_" + label, movesMap.get("Move_model_" + label)+1);
                       case LMNOGOOD:
-                    	  	label = step.getProcessView().getActivity();                	  	
-                    	  	movesMap.put("Sync move " + label, movesMap.get("Sync move "+label)+1);  //numSynchronousMoves++
+                    	  	label = step.getProcessView().getActivity().replaceAll(" ", "_");                	  	
+                    	  	movesMap.put("Sync_move_" + label, movesMap.get("Sync_move_"+label)+1);  //numSynchronousMoves++
                     	  	break;
                             
                             /*XAttributeMap x = t.get(0).getAttributes();
@@ -161,16 +150,16 @@ public class AlignmentToExampleSetOperator extends Operator {
 				if(!step.getProcessView().isInvisible()) {
 					switch (step.getType()) {
 						case MREAL:
-							label = step.getProcessView().getActivity();
+							label = step.getProcessView().getActivity().replaceAll(" ", "_");
 							break;
 						default:
-							label = step.getLogView().getActivity();
+							label = step.getLogView().getActivity().replaceAll(" ", "_");
 					}
 					
-					if (!eventList.contains("Sync move "+ label)) {
-    					eventList.add("Sync move "+ label);
-    					eventList.add("Move model "+ label);
-    					eventList.add("Move log "+ label);
+					if (!eventList.contains("Sync_move_"+ label)) {
+    					eventList.add("Sync_move_"+ label);
+    					eventList.add("Move_model_"+ label);
+    					eventList.add("Move_log_"+ label);
     				}
 				}
 			}

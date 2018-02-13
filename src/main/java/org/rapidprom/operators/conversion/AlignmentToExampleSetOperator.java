@@ -87,7 +87,7 @@ public class AlignmentToExampleSetOperator extends Operator {
 	
 	
 		
-//	protected TreeMap<String, Integer> extractAlignmentDetails(XTrace xTrace,List<StepTypes> steps, List<Object> nodeInstanceList, LinkedList<String> alignmentMoves) {
+
 	protected TreeMap<String, Integer> extractAlignmentDetails(Alignment alignment, LinkedList<String> alignmentMoves) {
 		
 		TreeMap<String, Integer> movesMap = new TreeMap<String, Integer>();
@@ -110,11 +110,13 @@ public class AlignmentToExampleSetOperator extends Operator {
                       case LMGOOD:
                     	  	label = step.getProcessView().getActivity().replaceAll(" ", "_");
                             movesMap.put("Sync_move_" + label, movesMap.get("Sync_move_"+label)+1);  //numSynchronousMoves++
+//                            System.out.println("Sync move "+ label);
                             break;
                            
                       case L :
                             label = step.getLogView().getActivity().replaceAll(" ", "_");
                             movesMap.put("Move_log_" + label, movesMap.get("Move_log_"+label)+1);
+//                            System.out.println("Move log "+ label);
                             break; 
                            
                       case MINVI :
@@ -122,9 +124,12 @@ public class AlignmentToExampleSetOperator extends Operator {
                       case MREAL :
                           	label = step.getProcessView().getActivity().replaceAll(" ", "_");  
                           	movesMap.put("Move_model_" + label, movesMap.get("Move_model_" + label)+1);
+//                          	System.out.println("Move model "+ label);
+                          	break; 
                       case LMNOGOOD:
                     	  	label = step.getProcessView().getActivity().replaceAll(" ", "_");                	  	
                     	  	movesMap.put("Sync_move_" + label, movesMap.get("Sync_move_"+label)+1);  //numSynchronousMoves++
+//                    	  	System.out.println("Sync move "+ label);
                     	  	break;
                             
                             /*XAttributeMap x = t.get(0).getAttributes();
@@ -157,6 +162,7 @@ public class AlignmentToExampleSetOperator extends Operator {
 					}
 					
 					if (!eventList.contains("Sync_move_"+ label)) {
+//						System.out.println(label);
     					eventList.add("Sync_move_"+ label);
     					eventList.add("Move_model_"+ label);
     					eventList.add("Move_log_"+ label);
@@ -164,6 +170,7 @@ public class AlignmentToExampleSetOperator extends Operator {
 				}
 			}
 		}
+//		System.out.println("Size: " + eventList.size());
 		return eventList;
 	}
 	

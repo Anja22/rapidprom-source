@@ -9,33 +9,57 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.rapidminer.example.Attribute;
+import com.rapidminer.example.AttributeTypeException;
 import com.rapidminer.example.Example;
 import com.rapidminer.example.ExampleSet;
+import com.rapidminer.example.set.Condition;
+import com.rapidminer.example.set.ConditionCreationException;
+import com.rapidminer.example.set.ConditionedExampleSet;
+import com.rapidminer.example.set.CustomFilter;
+import com.rapidminer.example.set.ExpressionFilter;
 import com.rapidminer.example.table.NominalMapping;
 import com.rapidminer.operator.IOObject;
 import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorDescription;
 import com.rapidminer.operator.OperatorException;
+import com.rapidminer.operator.UserError;
 import com.rapidminer.operator.learner.weka.WekaClassifier;
 import com.rapidminer.operator.ports.InputPort;
 import com.rapidminer.operator.ports.OutputPort;
 import com.rapidminer.operator.ports.metadata.GenerateNewMDRule;
+import com.rapidminer.operator.preprocessing.filter.ExampleFilter;
+import com.rapidminer.operator.tools.ExpressionEvaluationException;
 import com.rapidminer.parameter.ParameterType;
+import com.rapidminer.parameter.ParameterTypeAttribute;
 import com.rapidminer.parameter.ParameterTypeAttributes;
 import com.rapidminer.parameter.ParameterTypeBoolean;
+import com.rapidminer.parameter.ParameterTypeExpression;
+import com.rapidminer.parameter.ParameterTypeFilter;
+import com.rapidminer.parameter.ParameterTypeList;
+import com.rapidminer.parameter.ParameterTypeString;
+import com.rapidminer.parameter.ParameterTypeStringCategory;
+import com.rapidminer.parameter.UndefinedParameterError;
+import com.rapidminer.parameter.conditions.EqualStringCondition;
 import com.rapidminer.tools.LogService;
 import com.rapidminer.tools.WekaTools;
+import com.rapidminer.tools.expression.ExpressionException;
 
 import weka.classifiers.trees.J48;
 
 import org.processmining.datadiscovery.estimators.weka.WekaTreeClassificationAdapter;
 import org.processmining.datadiscovery.estimators.weka.WekaTreeClassificationAdapter.WekaLeafNode;
 import org.processmining.datapetrinets.expression.GuardExpression;
+import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.util.Pair;
+import org.rapidprom.external.connectors.prom.RapidProMGlobalContext;
+import org.rapidprom.ioobjects.WekaTreeExtractionIOObject;
 import org.rapidprom.ioobjects.XLogIOObject;
+import org.rapidprom.operators.util.RapidProMProgress;
 import org.rapidprom.parameter.ParameterTypeLabelValues;
 import org.deckfour.xes.factory.XFactoryRegistry;
+import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XLog;
+import org.deckfour.xes.model.XTrace;
 import org.processmining.datadiscovery.estimators.Type;
 
 
@@ -48,15 +72,26 @@ public class ExtractNodesOperator extends Operator{
 	private InputPort eventlogInput = getInputPorts().createPort("event log (ProM Event Log)", XLogIOObject.class);
 
 	private OutputPort passthroughTreeModel = getOutputPorts().createPort("model (W-J48 Tree)");
+	private OutputPort extractOutput = getOutputPorts().createPort("extracted traces");
 	
 	private static final String REMAINING = "Remaining Instances";
-	private static final String EXCLUDE_WRONG = "Exclude wrongly classified instances";
-	private static final String PARAMETER_ATTRIBUTES = "attributes";
+//	private static final String EXCLUDE_WRONG = "Exclude wrongly classified instances";
+	private static final String PARAMETER_CONDITION_CLASS = "condition_class";
+	public static final String PARAMETER_FILTER = "filters";
+	
+	/** The hidden parameter for &quot;The list of filters.&quot; */
+	public static final String PARAMETER_FILTERS_LIST = "filters_list";
+	
+	/** The hidden parameter for &quot;Logic operator for filters.&quot; */
+	public static final String PARAMETER_FILTERS_LOGIC_AND = "filters_logic_and";
+	
 	
 	public ExtractNodesOperator(OperatorDescription description) {
 		super(description);
-//		exampleSetInput.addPrecondition(new ExampleSetPrecondition(exampleSetInput,));		
+		
 		getTransformer().addRule(new GenerateNewMDRule(passthroughTreeModel, WekaClassifier.class));
+		getTransformer().addRule(new GenerateNewMDRule(extractOutput, WekaTreeExtractionIOObject.class));
+		
 	}
 
 	@Override
@@ -65,45 +100,62 @@ public class ExtractNodesOperator extends Operator{
 		logger.log(Level.INFO, "Start: Extract Nodes");
 		long time = System.currentTimeMillis();
 		
+		PluginContext context = RapidProMGlobalContext.instance().getPluginContext();
+		
 		ExampleSet exampleSet = exampleSetInput.getData(ExampleSet.class);
 		XLogIOObject xlogIO = eventlogInput.getData(XLogIOObject.class);
 		XLog log = xlogIO.getArtifact();
-		boolean onlyCorrectlyClassified = getParameterAsBoolean(EXCLUDE_WRONG);
 		
 		IOObject object = modelInput.getAnyDataOrNull();
 		WekaClassifier wekaObject =  (WekaClassifier) object;
 		J48 tree = (J48) wekaObject.getClassifier();
 		
-//		List<Pair<String,GuardExpression>> listExpressions = getExpressionsAtLeaves(tree, exampleSet);
+		Pair<GuardExpression[], XLog[]> extract;
+		
 		try {
-			Pair<String[], XLog[]> extract = clusterLog(onlyCorrectlyClassified,tree,exampleSet);
+			extract = clusterLog(tree,exampleSet,log);
+			extractOutput.deliver(new WekaTreeExtractionIOObject(extract,context));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		passthroughTreeModel.deliver(wekaObject);
+		
 		
 		logger.log(Level.INFO, "End: Extract Nodes ("+ (System.currentTimeMillis() - time) / 1000 + " sec)");
 	}
 	
 	 
 	 
-	 private Pair<String[], XLog[]> clusterLog(boolean onlyCorrectlyClassified, J48 tree, ExampleSet exampleSet ) throws Exception
+	 private Pair<GuardExpression[], XLog[]> clusterLog(J48 tree, ExampleSet exampleSet, XLog log ) throws Exception
 		{
-//			if (maxDeviation>1 && maxDeviation<=100)
-//				maxDeviation/=100.0;
-//			else if (maxDeviation>1 || maxDeviation<0)
-//				return null;	
-		
-		 List<Pair<String,GuardExpression>> listExpressions = getExpressionsAtLeaves(tree, exampleSet);
+		  
+		 	ExampleSet filteredExampleSet = filter(exampleSet);
+		 	LinkedList<String> validNodeValues = new LinkedList<String>();
 		 
-			if (listExpressions==null)
+		 	for (Example example : filteredExampleSet) {
+			
+				 String value = example.getNominalValue(example.getAttributes().getLabel());
+				 if(!validNodeValues.contains(value))
+					 validNodeValues.add(value);
+		 	}
+		 
+		 	List<Pair<String,GuardExpression>> listExpressions = getExpressionsAtLeaves(tree, exampleSet);
+		 	
+		 	if (listExpressions==null)
 				return null;
+		 	
+		 	List<Pair<String,GuardExpression>> toRemove = new LinkedList<Pair<String,GuardExpression>>();
+		 	
+		 	for(Pair<String, GuardExpression> entry : listExpressions)
+			{	
+				if(!validNodeValues.contains(entry.getFirst())) {
+					toRemove.add(entry);
+				}
+			}
+		 	listExpressions.removeAll(toRemove);
 			
 			int size=listExpressions.size();
-			if (onlyCorrectlyClassified)
-				size++;
 			
 			String[] objectArray=new String[size];
 			GuardExpression[] exprArray=new GuardExpression[size];
@@ -111,117 +163,45 @@ public class ExtractNodesOperator extends Operator{
 			
 			int j=0;
 			for(Pair<String, GuardExpression> entry : listExpressions)
-			{
-				objectArray[j]=entry.getFirst();
-				exprArray[j]=entry.getSecond();
-				retValue[j++]=XFactoryRegistry.instance().currentDefault().createLog();
+			{	
+					objectArray[j]=entry.getFirst();
+					exprArray[j]=entry.getSecond();
+					retValue[j++]=XFactoryRegistry.instance().currentDefault().createLog();
 			}
 			
-			if (onlyCorrectlyClassified)
-			{
-				objectArray[j]=REMAINING;
-				exprArray[j]=null;
-				retValue[j]=XFactoryRegistry.instance().currentDefault().createLog();
+			NominalMapping idMapping = filteredExampleSet.getAttributes().getId().getMapping();
 			
-			}
-			
-			NominalMapping idMapping = exampleSet.getAttributes().getId().getMapping();
-			
-			for(Example example : exampleSet){
+			//for each example in the Exampleset
+			for(Example example : filteredExampleSet){
 				
 				final Hashtable<String,Object> variableValues=new Hashtable<String, Object>();
-							
 				String traceId = idMapping.mapIndex((int)example.getId());
 				
 				for(Attribute attr: example.getAttributes()) {
 					String name = attr.getName();	
-//					System.out.println(name);
 					variableValues.put(name, (Object) example.getNominalValue(attr));
 				}
 				
-				//TO-DO get t:concept:name
-				
-//				Object[] instance = instanceOfATrace.get(entry);
-//				
-//				for(int i=0;i<instance.length-1;i++)
-//					if (instance[i]!=null)
-//						variableValues.put(augementationArray[i].getAttributeName(), instance[i]);
-				
 				for(j=0;j<exprArray.length;j++)
 				{
-					if (exprArray[j]==null || exprArray[j].isTrue(variableValues))
-					{						
-						boolean isOK=false;
-						double valAsNumber=0;
-						double secVal=-1;
-						boolean isANumber=false;
+					LinkedList<String> traceIds = new LinkedList<String>();
+					
+					if(exprArray[j].isTrue(variableValues))
+					{	 
 						
-						//check whether category is a number or a string
-						try
-						{
-							valAsNumber=Double.parseDouble(objectArray[j]);
-							isANumber=true;
-						}
-						catch(NumberFormatException nfe) {}
-						if (!isANumber)
-						{
-							try
-							{
-								String value[]=objectArray[j].replace('[', ' ').replace(']', ' ').replace(',', ' ').trim().split(" ");
-										
-								if (value.length==2)
-								{
-									valAsNumber=Double.parseDouble(value[0]);
-									secVal=Double.parseDouble(value[1]);
-								}
+						for(XTrace t : log) {
+	
+							String id = t.getAttributes().get("concept:name").toString();							
+							if (id.equals(traceId)){
+								retValue[j].add(t);
+								break;
 							}
-							catch(NumberFormatException nfe) {}
 						}
-//						if (onlyCorrectlyClassified && secVal>=valAsNumber && 
-//								variableValues.get(outputAttribute.getAttributeName()) instanceof Number)
-//						{
-//							double value=((Number)variableValues.get(outputAttribute.getAttributeName())).doubleValue();
-//							if (objectArray[j].indexOf(']')<0)
-//								isOK= (value>=valAsNumber && value< secVal);
-//							else
-//								isOK= (value>=valAsNumber && value <= secVal);
-//								
-//						}
-//						else if (onlyCorrectlyClassified && isANumber && 
-//								variableValues.get(outputAttribute.getAttributeName()) instanceof Number)
-//						{
-//							double actVal=((Number)variableValues.get(outputAttribute.getAttributeName())).doubleValue();
-//							if (Math.abs((actVal-valAsNumber)/actVal)<maxDeviation)
-//								isOK=true;
-//							else
-//								isOK=false;
-//									
-//						}
-//						
-//						if (!onlyCorrectlyClassified || objectArray[j].equals(REMAINING) || isOK || 
-//								objectArray[j].equals(variableValues.get(outputAttribute.getAttributeName())))
-//						{
-//							
-//							XTrace aNewTrace=XFactoryRegistry.instance().currentDefault().createTrace(entry.getAttributes());
-//							
-//							for(XEvent event : entry)
-//								if (!CASE_ACTIVITY.equals(XConceptExtension.instance().extractName(event)))
-//									aNewTrace.add(XFactoryRegistry.instance().currentDefault().createEvent(event.getAttributes()));
-//							retValue[j].add(aNewTrace);
-//							break;
-//						}
 					}
 				}
 			}
-			String[] description=new String[exprArray.length];
-//			for(int i=0;i<exprArray.length;i++)
-//			{
-//				if (objectArray[i]!=REMAINING)
-//					description[i]=objectArray[i].toString()+". Expression: "+exprArray[i];
-//				else
-//					description[i]=null;
-//			}
-			return new Pair<String[],XLog[]>(description,retValue);
+
+			return new Pair<GuardExpression[],XLog[]>(exprArray,retValue);
 				
 		}
 	 
@@ -285,15 +265,65 @@ public class ExtractNodesOperator extends Operator{
        
      }
 	 
+	 private ExampleSet filter(ExampleSet inputSet) throws OperatorException {
+		  
+		 	String className = getParameterAsString(PARAMETER_CONDITION_CLASS);
+			Condition condition = null;
+			try {
+					// special handling for custom_filters, as they cannot be instantiated via a simple
+					// string parameter
+					// this is necessary as operator.getParameterList() replaces '%{test}' by 'test'
+					String rawParameterString = getParameters().getParameterAsSpecified(PARAMETER_FILTERS_LIST);
+					if (rawParameterString == null) {
+						throw new UndefinedParameterError(PARAMETER_FILTER, this);
+					}
+					List<String[]> operatorFilterList = ParameterTypeList.transformString2List(rawParameterString);
+					condition = new CustomFilter(inputSet, operatorFilterList,
+							getParameterAsBoolean(PARAMETER_FILTERS_LOGIC_AND), getProcess().getMacroHandler());
+			
+			} catch (AttributeTypeException e) {
+				throw new UserError(this, e, "filter_wrong_type", e.getMessage());
+			} catch (IllegalArgumentException e) {
+				throw new UserError(this, e, 904, className, e.getMessage());
+			}
+			try {
+				ExampleSet result = new ConditionedExampleSet(inputSet, condition,
+						false, getProgress());
+				return result;
+			} catch (AttributeTypeException e) {
+				throw new UserError(this, e, "filter_wrong_type", e.getMessage());
+			} catch (ExpressionEvaluationException e) {
+				throw new UserError(this, e, 904, className, e.getMessage());
+			}
+		 
+	 }
+	 
 	 	@Override
 		public List<ParameterType> getParameterTypes() {
 			List<ParameterType> params = super.getParameterTypes();
 			
-			ParameterType type = new ParameterTypeLabelValues(PARAMETER_ATTRIBUTES, "The attribute which should be chosen.");
+			ParameterType type = new ParameterTypeFilter(PARAMETER_FILTER, "Define the values of the nodes that should be extracted",
+					exampleSetInput, true);
 			type.setExpert(false);
 			params.add(type);
-			
-			params.add(new ParameterTypeBoolean(EXCLUDE_WRONG,"Exclude wrongly classified instances to get strictly reliable results", true, false));
+				
+			// hidden parameter, only used to store the filters set via the ParameterTypeFilter dialog
+			// above
+			type = new ParameterTypeList(PARAMETER_FILTERS_LIST, "The list of filters.", new ParameterTypeString(
+					"PARAMETER_FILTERS_ENTRY_KEY", "A key entry of the filters list."), new ParameterTypeString(
+							"PARAMETER_FILTERS_ENTRY_VALUE", "A value entry of the filters list."), false);
+			type.setHidden(true);
+//			type.registerDependencyCondition(new EqualStringCondition(this, PARAMETER_CONDITION_CLASS, true,ConditionedExampleSet.KNOWN_CONDITION_NAMES[8]));
+			params.add(type);
+
+			// hidden parameter, only used to store if the filters from the ParameterTypeFilter dialog
+			// above should be ANDed or ORed
+			type = new ParameterTypeBoolean(PARAMETER_FILTERS_LOGIC_AND, "Logic operator for filters.", true, false);
+			type.setHidden(true);
+//			type.registerDependencyCondition(new EqualStringCondition(this, PARAMETER_CONDITION_CLASS, true,
+//					ConditionedExampleSet.KNOWN_CONDITION_NAMES[8]));
+			params.add(type);
+//			params.add(new ParameterTypeBoolean(EXCLUDE_WRONG,"Exclude wrongly classified instances to get strictly reliable results", true, false));
 			
 			return params;
 		}

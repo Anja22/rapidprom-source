@@ -1,18 +1,25 @@
 package org.rapidprom.operators.analysis;
 
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.datapetrinets.DataPetriNet;
+import org.processmining.datapetrinets.expression.GuardExpression;
 import org.processmining.framework.plugin.PluginContext;
+import org.processmining.plugins.DataConformance.Alignment;
+import org.processmining.plugins.DataConformance.Alignment.AlignmentStep;
 import org.processmining.plugins.DataConformance.ResultReplay;
 import org.processmining.plugins.DataConformance.RepairLog.AlignmentBasedLogRepairParametersImpl;
 import org.processmining.plugins.DataConformance.RepairLog.RepairLog;
 import org.rapidprom.external.connectors.prom.RapidProMGlobalContext;
 import org.rapidprom.ioobjects.DataPetriNetIOObject;
+import org.rapidprom.ioobjects.GuardExpressionIOObject;
 import org.rapidprom.ioobjects.PetriNetIOObject;
 import org.rapidprom.ioobjects.ResultReplayIOObject;
 import org.rapidprom.ioobjects.XLogIOObject;
@@ -28,15 +35,9 @@ import com.rapidminer.tools.LogService;
 
 public class RepairLogWithAlignmentOperator extends Operator {
 	
-//	public static final String PARAMETER_ATTRIBUTES_LOGMOVE = "Log moves";
-//	public static final String PARAMETER_ATTRIBUTES_MODELMOVE = "Process moves";
-//	public static final String PARAMETER_ATTRIBUTES_SYNCNOGOODMOVE = "Synchronous moves with wrong write operations:";
-//	private static final String PARAMETER_ATTRIBUTE_MODELMOVE = null;
-//	private static final String PARAMETER_ATTRIBUTE_SYNCNOGOODMOVE = null;
-	
 	private InputPort alignmentInput = getInputPorts().createPort("alignments (ProM ResultReplay)", ResultReplayIOObject.class);
 	private InputPort modelInput = getInputPorts().createPort("model (DataPetriNet)", PetriNetIOObject.class);
-	//TODO add inputport for ruleIOObject
+	private InputPort extractInput = getInputPorts().createPort("guard expression (WekaTree)", GuardExpressionIOObject.class);
 	private OutputPort logOutput = getOutputPorts().createPort("event log (ProM Event Log)");
 	
 	
@@ -60,99 +61,72 @@ public class RepairLogWithAlignmentOperator extends Operator {
 		DataPetriNetIOObject dpnIOObject = modelInput.getData(DataPetriNetIOObject.class);
 		DataPetriNet net = dpnIOObject.getArtifact();
 		
-		XLog log = RepairLog.plugin(context, alignments, net, getConfiguration());
-		logOutput.deliver(new XLogIOObject(log, context));
+		GuardExpressionIOObject expressionIOObject = extractInput.getData(GuardExpressionIOObject.class);
+		GuardExpression expression = expressionIOObject.getArtifact();
 		
+		AlignmentBasedLogRepairParametersImpl config = getConfiguration(alignments,expression);
+		
+		XLog log = RepairLog.plugin(context, alignments, net, config);
+		logOutput.deliver(new XLogIOObject(log, context));
 
 		logger.log(Level.INFO,
 				"End: repair log with respect to alignment (" + (System.currentTimeMillis() - time) / 1000 + " sec)");
 	}
-	
-//	@Override
-//	public List<ParameterType> getParameterTypes() {
-//		List<ParameterType> types = new LinkedList<ParameterType>();
 
-//		SortedSet<String> logMoves=new TreeSet<String>();
-//		SortedSet<String> modelMoves=new TreeSet<String>();
-//		SortedSet<String> synchNoGoodMoves=new TreeSet<String>();
-//
-//		
-//		for (Alignment alignment : alignments.labelStepArray)
-//		{	
-//			Iterator<AlignmentStep> iterator = alignment.iterator();
-//			while(iterator.hasNext())
-//			{
-//				AlignmentStep align=iterator.next();
-//				switch(align.getType())
-//				{
-//					case L :
-//						logMoves.add(align.getLogView().getActivity());
-//						break;
-//					case LMNOGOOD :
-//						synchNoGoodMoves.add(align.getProcessView().getActivity());
-//						break;
-//					case MREAL :
-//						modelMoves.add(align.getProcessView().getActivity());
-//						break;
-//					default :
-//						break;					
-//				}
-//			}
-//		}
-//		String[] str = logMoves.toArray(new String[logMoves.size()]);
-//		ParameterType logMoves2 = new ParameterTypeCategory(PARAMETER_ATTRIBUTES_LOGMOVE, "Log moves to consider when repairing logs:",str,1,false);
-//		logMoves.setExpert(false);
-		
-//		ParameterType modelMoves = new ParameterTypeCategory(PARAMETER_ATTRIBUTES_MODELMOVE, "Process moves to consider when repairing logs:",
-//				);
-//		modelMoves.setExpert(false);
-//		
-//		ParameterType syncNoGoodMoves = new ParameterTypeCategory(PARAMETER_ATTRIBUTES_SYNCNOGOODMOVE, "Synchronous moves with wrong write operations:",
-//				);
-//		syncNoGoodMoves.setExpert(false);
-//		
-//		types.add(logMoves2);
-//		types.add(modelMoves);
-////		types.add(syncNoGoodMoves);
-//		return types;
-//	}
 	
-	private AlignmentBasedLogRepairParametersImpl getConfiguration() {
+	private AlignmentBasedLogRepairParametersImpl getConfiguration(ResultReplay alignments,GuardExpression expression) {
 		
-		List<String[]> logMoves = null;
-		List<String[]> modelMoves = null;
-		List<String[]> syncMovesNoGood = null;
-		
-//		try {
-//			logMoves = getParameterList(PARAMETER_ATTRIBUTES_LOGMOVE);
-//			modelMoves = getParameterList(PARAMETER_ATTRIBUTE_MODELMOVE);
-//			syncMovesNoGood = getParameterList(PARAMETER_ATTRIBUTE_SYNCNOGOODMOVE);
-//
-//		} catch (UndefinedParameterError e) {
-//			e.printStackTrace();
-//		}
-		
-		//TODO repair deviations except the ones associated to the better KPI
-		
+		String guard = expression.toString();
+		String[] value = guard.replace("(", "").replace(")", "").replace("==","").replace("!=","").replaceAll("\"[0-9]\"","").trim().split("&&");
+		List<String> valueAsList = Arrays.asList(value);
+				
 		AlignmentBasedLogRepairParametersImpl params = new AlignmentBasedLogRepairParametersImpl();
+		String label = null;
+		String alignLabel = null;
 		
-		if (!logMoves.isEmpty()) {
-			for (Object s : logMoves) {
-				params.getLogMoves().add(s.toString());
+		for (Alignment alignment : alignments.labelStepArray)
+			{	
+				Iterator<AlignmentStep> iterator = alignment.iterator();
+				while(iterator.hasNext())
+				{
+					AlignmentStep align=iterator.next();
+					switch(align.getType())
+					{
+						case L :
+							label = align.getLogView().getActivity();
+							String ml = "Move_log_";
+							alignLabel = ml.concat(label.replaceAll(" ", "_"));
+							if (valueAsList.contains(alignLabel)){								
+								break;
+							}else {
+								params.getLogMoves().add(label);
+								break;
+							}
+						case LMNOGOOD :
+							label = align.getProcessView().getActivity();
+							String sm = "Sync_move_";
+							alignLabel = sm.concat(label.replaceAll(" ", "_"));
+							if (valueAsList.contains(alignLabel)){								
+								break;
+							}else {
+								params.getSyncMoves().add(label);
+								break;
+							}
+						case MREAL :
+							label = align.getProcessView().getActivity();
+							String mm = "Move_model_";
+							alignLabel = mm.concat(label.replaceAll(" ", "_"));
+							if (valueAsList.contains(alignLabel)) {								
+								break;
+							}else {
+								params.getModelMoves().add(label);
+								break;
+							}							
+						default :
+							break;					
+					}
+				}
 			}
-		}
-			
-		if (!modelMoves.isEmpty()) {
-			for (Object s : modelMoves) {
-				params.getModelMoves().add(s.toString());
-			}
-		}
-		
-		if (!syncMovesNoGood.isEmpty()) {
-			for (Object s : syncMovesNoGood) {
-				params.getSyncMoves().add(s.toString());
-			}
-		}
 		
 		return params;
 	}

@@ -795,6 +795,13 @@
 		<help>...</help>
 		<key>incremental_prefix_alignments_prefix_aware</key>
 	</operator>
+	
+	<operator>
+		<name>Loop Node Extraction</name>
+		<synopsis>This operator loops over the nodes extracted from a WekaTree and applies its inner operators.</synopsis>
+		<help>The output is a merged log.</help>
+		<key>loop_node_extraction</key>
+	</operator>
 
 	<!-- STREAMS -->
 	<operator>

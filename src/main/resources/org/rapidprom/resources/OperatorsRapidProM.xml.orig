@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <operators name="rapidprom" version="6.0" docbundle="org/rapidprom/resources/i18n/OperatorsDocRapidProM">
-<<<<<<< HEAD
         <group key="analysis">
             <operator>
                 <key>analyze_with_woflan</key>
@@ -311,10 +310,8 @@
                 <key>rprom_free_memory</key>
                 <class>org.rapidprom.operators.util.RapidProMMemoryCleanUpOperator</class>
                 <icon>wrench.png</icon>
-            </operator>
+            </operator>            
         </group>
-</operators>
-=======
 	<group key="analysis">
 		<operator>
 			<key>petrinet_complexity_metrics</key>
@@ -841,7 +838,7 @@
 		<operator>
 			<key>merge_subsequent_events</key>
 			<class>org.rapidprom.operators.logmanipulation.MergeSubsequentEventsOperator</class>
-		</operator>		
+		</operator>			
 	</group> 
 	<group key="streams">
 		<group key="analysis">
@@ -993,4 +990,3 @@
 		</operator>
 	</group>
 </operators>
->>>>>>> fmannhardt

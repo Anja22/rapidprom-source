@@ -72,7 +72,7 @@ public class ExtractNodesOperator extends Operator{
 	private InputPort eventlogInput = getInputPorts().createPort("event log (ProM Event Log)", XLogIOObject.class);
 
 	private OutputPort passthroughTreeModel = getOutputPorts().createPort("model (W-J48 Tree)");
-	private OutputPort extractOutput = getOutputPorts().createPort("extracted traces");
+	private OutputPort extractOutput = getOutputPorts().createPort("node extraction");
 	
 	private static final String REMAINING = "Remaining Instances";
 //	private static final String EXCLUDE_WRONG = "Exclude wrongly classified instances";

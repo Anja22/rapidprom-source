@@ -548,7 +548,12 @@
 		<operator>
 			<key>merge_subsequent_events</key>
 			<class>org.rapidprom.operators.logmanipulation.MergeSubsequentEventsOperator</class>
-		</operator>		
+		</operator>	
+		<operator>
+        	<key>loop_node_extraction</key>
+        	<class>org.rapidprom.operators.util.NodeExtractionIterator</class>
+        	<icon>wrench.png</icon>
+        </operator>		
 	</group> 
 	<group key="streams">
 		<group key="analysis">

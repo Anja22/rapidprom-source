@@ -6,14 +6,18 @@ buildscript {
 }
 
 
-plugins { id 'com.rapidminer.extension' version '0.8.2' }
+plugins { 
+	id 'com.rapidminer.extension' version '0.8.2'
+	}
+
 
 // Define Maven artifact repositories
 repositories {
     jcenter()
 	maven { url 'https://maven.rapidminer.com/content/groups/public/' }
 	ivy {
-		url "https://github.com/rapidprom/rapidprom-libraries/raw/${project.properties["libs"]}/prom/"
+		//url "https://github.com/rapidprom/rapidprom-libraries/raw/${project.properties["libs"]}/prom/"
+		url "https://github.com/Anja22/rapidprom-libraries/raw/${project.properties["libs"]}/prom/"
 		layout "pattern", {
 			artifact "[module]-[revision]/[module]-[revision].[ext]"
 			artifact "[module]-[revision]/[artifact].[ext]"
@@ -47,6 +51,7 @@ repositories {
 		dirs 'libs'
 	}
 }
+
 
 extensionConfig {
 
@@ -122,7 +127,8 @@ dependencies {
 	compile "org.rapidprom:LogEnhancement:6.7.354"
 	compile "org.rapidprom:LogFiltering:6.8.31"
 	compile "org.rapidprom:LogProjection:6.5.38"
-	compile "org.rapidprom:ModelRepair:6.5.12"
+	//compile "org.rapidprom:ModelRepair:6.5.12"
+	compile "org.rapidprom:ModelRepair:6.7.42"
 	compile "org.rapidprom:Murata:6.5.54"
 	compile "org.rapidprom:NoiseFiltering:0.0.1"
 	compile "org.rapidprom:OnlineConformance:6.7.115"
@@ -130,6 +136,7 @@ dependencies {
 	compile "org.rapidprom:PetriNetSimulator:6.7.19"
 	compile "org.rapidprom:PNetAlignmentAnalysis:6.7.91"
 	compile "org.rapidprom:PNAnalysis:6.7.128"
+	//compile "org.rapidprom:PNetReplayer:6.7.99"
 	compile "org.rapidprom:PNetReplayer:6.7.152"
 	compile "org.rapidprom:PTConversions:6.5.3"
 	compile "org.rapidprom:PTAndLogGenerator:6.7.92"
@@ -150,4 +157,5 @@ dependencies {
 	compile "org.processmining:DAPOQ-Lang:0.8"
 	compile 'com.github.fommil.netlib:all:1.1.2'
 	compile 'com.googlecode.matrix-toolkits-java:mtj:1.0.3'
+		
 }

@@ -77,8 +77,12 @@ public class RepairLogWithAlignmentOperator extends Operator {
 	private AlignmentBasedLogRepairParametersImpl getConfiguration(ResultReplay alignments,GuardExpression expression) {
 		
 		String guard = expression.toString();
-		String[] value = guard.replace("(", "").replace(")", "").replace("==","").replace("!=","").replaceAll("\"[0-9]\"","").trim().split("&&");
+		String[] value = guard.replace("(", "").replace(")", "").replace("==","").replace("!=","").replaceAll("\"[0-9]\"","").replaceAll("\"[0-9].[0-9]\"","").trim().split("&&");
 		List<String> valueAsList = Arrays.asList(value);
+		
+		for (String values : valueAsList) {
+			System.out.println(values);
+		}
 				
 		AlignmentBasedLogRepairParametersImpl params = new AlignmentBasedLogRepairParametersImpl();
 		String label = null;
@@ -93,10 +97,12 @@ public class RepairLogWithAlignmentOperator extends Operator {
 					switch(align.getType())
 					{
 						case L :
-							label = align.getLogView().getActivity();
+							label = align.getLogView().getActivity();					
 							String ml = "Move_log_";
 							alignLabel = ml.concat(label.replaceAll(" ", "_"));
-							if (valueAsList.contains(alignLabel)){								
+//							System.out.println("Break move log " + alignLabel);
+							if (valueAsList.contains(alignLabel)){
+//								System.out.println("Break move log " + label);
 								break;
 							}else {
 								params.getLogMoves().add(label);
@@ -106,17 +112,20 @@ public class RepairLogWithAlignmentOperator extends Operator {
 							label = align.getProcessView().getActivity();
 							String sm = "Sync_move_";
 							alignLabel = sm.concat(label.replaceAll(" ", "_"));
-							if (valueAsList.contains(alignLabel)){								
-								break;
-							}else {
+//							if (valueAsList.contains(alignLabel)){
+								//System.out.println("Break no good move " + label);
+//								break;
+//							}else {
 								params.getSyncMoves().add(label);
 								break;
-							}
+//							}
 						case MREAL :
 							label = align.getProcessView().getActivity();
 							String mm = "Move_model_";
 							alignLabel = mm.concat(label.replaceAll(" ", "_"));
-							if (valueAsList.contains(alignLabel)) {								
+//							System.out.println("Break move model " + alignLabel);
+							if (valueAsList.contains(alignLabel)) {	
+//								System.out.println("Break move model " + label);
 								break;
 							}else {
 								params.getModelMoves().add(label);

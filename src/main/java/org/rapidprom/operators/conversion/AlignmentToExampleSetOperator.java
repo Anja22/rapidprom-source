@@ -192,8 +192,8 @@ public class AlignmentToExampleSetOperator extends Operator {
 			String columnName = alignmentMoves.get(i);
 			AttributeMetaData amd = null;
 			
-				attributes.add(AttributeFactory.createAttribute(columnName, Ontology.NOMINAL));
-				amd = new AttributeMetaData(columnName, Ontology.NOMINAL);
+				attributes.add(AttributeFactory.createAttribute(columnName, Ontology.NUMERICAL));
+				amd = new AttributeMetaData(columnName, Ontology.NUMERICAL);
 				amd.setRole(AttributeColumn.REGULAR);
 				amd.setNumberOfMissingValues(new MDInteger(0));
 				metaData.addAttribute(amd);

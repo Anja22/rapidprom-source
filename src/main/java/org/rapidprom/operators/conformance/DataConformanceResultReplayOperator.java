@@ -13,6 +13,7 @@ import org.deckfour.xes.model.XLog;
 import org.processmining.dataawarereplayer.precision.PrecisionResult;
 import org.processmining.datapetrinets.DataPetriNet;
 import org.processmining.framework.plugin.PluginContext;
+import org.processmining.framework.plugin.Progress;
 import org.processmining.log.utils.XUtils;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
@@ -192,7 +193,8 @@ public class DataConformanceResultReplayOperator extends Operator {
 			BalancedDataConformancePlusPlugin alignmentPlugin = new BalancedDataConformancePlusPlugin();
 //			Stopwatch watch = Stopwatch.createStarted();
 //			XLog alignLog = alignmentPlugin.alignLog(new RapidProMProgress(getProgress()), dpn, log, config);
-			ResultReplay alignment = alignmentPlugin.balancedAlignmentPluginHeadless(context, dpn, log, config);
+			ResultReplay alignment = alignmentPlugin.doBalancedAlignmentDataConformanceChecking(dpn, log, new RapidProMProgress(getProgress()), config);
+//			ResultReplay alignment = alignmentPlugin.balancedAlignmentPluginHeadless(context, dpn, log, config);
 //			long runTime = watch.elapsed(TimeUnit.MILLISECONDS);
 //			XAlignedLog alignedLog = XAlignmentExtension.instance().extendLog(alignLog);
 
@@ -226,8 +228,8 @@ public class DataConformanceResultReplayOperator extends Operator {
 			DataPetriNet dpn, Marking initialMarking, Marking[] finalMarkings)
 			throws UndefinedParameterError, UserError {
 		BalancedProcessorConfiguration config = BalancedProcessorConfiguration.newDefaultInstance(dpn, initialMarking,
-				finalMarkings, log, transitionMapping.getEventClassifier(), getDefaultCostLogMove(),
-				getDefaultCostModelMove(), getDefaultCostMissingWrite(), getDefaultCostWrongWrite());
+				finalMarkings, log, transitionMapping.getEventClassifier(), getDefaultCostModelMove(), getDefaultCostLogMove(),
+				getDefaultCostMissingWrite(), getDefaultCostWrongWrite());
 
 		config.setConcurrentThreads(
 				Math.min(Runtime.getRuntime().availableProcessors(), getParameterAsInt(CONCURRENT_THREADS_KEY)));
@@ -259,30 +261,30 @@ public class DataConformanceResultReplayOperator extends Operator {
 		
 		applyUserDefinedTransitionMapping(transitionMapping, config);
 
-		if (inputVariableMapping.isConnected()) {
-			try {
-				applyUserDefinedVariableMapping(getVariableMapping(), config);
-			} catch (ExampleSetReaderException e) {
-				inputVariableMapping
-						.addError(new SimpleMetaDataError(Severity.WARNING, inputVariableMapping, e.getMessage()));
-			}
-		}
-
-		if (inputCosts.isConnected()) {
-			try {
-				applyUserDefinedCosts(getCostsControlFlow(), log, dpn, config);
-			} catch (ExampleSetReaderException e) {
-				inputCosts.addError(new SimpleMetaDataError(Severity.WARNING, inputCosts, e.getMessage()));
-			}
-		}
-
-		if (inputCostsData.isConnected()) {
-			try {
-				applyUserDefinedDataCosts(getCostsData(), log, dpn, config);
-			} catch (ExampleSetReaderException e) {
-				inputCostsData.addError(new SimpleMetaDataError(Severity.WARNING, inputCostsData, e.getMessage()));
-			}
-		}
+//		if (inputVariableMapping.isConnected()) {
+//			try {
+//				applyUserDefinedVariableMapping(getVariableMapping(), config);
+//			} catch (ExampleSetReaderException e) {
+//				inputVariableMapping
+//						.addError(new SimpleMetaDataError(Severity.WARNING, inputVariableMapping, e.getMessage()));
+//			}
+//		}
+//
+//		if (inputCosts.isConnected()) {
+//			try {
+//				applyUserDefinedCosts(getCostsControlFlow(), log, dpn, config);
+//			} catch (ExampleSetReaderException e) {
+//				inputCosts.addError(new SimpleMetaDataError(Severity.WARNING, inputCosts, e.getMessage()));
+//			}
+//		}
+//
+//		if (inputCostsData.isConnected()) {
+//			try {
+//				applyUserDefinedDataCosts(getCostsData(), log, dpn, config);
+//			} catch (ExampleSetReaderException e) {
+//				inputCostsData.addError(new SimpleMetaDataError(Severity.WARNING, inputCostsData, e.getMessage()));
+//			}
+//		}
 		return config;
 	}
 
@@ -321,6 +323,7 @@ public class DataConformanceResultReplayOperator extends Operator {
 //		return table.createExampleSet();
 //	}
 
+	@SuppressWarnings("deprecation")
 	public ExampleSet createMeasureTable(XAlignedLog alignedLog, PrecisionResult precisionResult,
 			DataConformancePlusObserverImpl observer, long runTime) {
 		Attribute nameAttr = AttributeFactory.createAttribute("Name", Ontology.STRING);

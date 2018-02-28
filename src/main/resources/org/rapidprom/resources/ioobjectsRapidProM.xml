@@ -199,6 +199,13 @@
 	</ioobject>	
 	
 	<ioobject
+		name="ResultReplayProM"
+		class="org.rapidprom.ioobjects.ResultReplayIOObject"
+		reportable="true">
+		<renderer>org.rapidprom.ioobjectrenderers.ResultReplayIOObjectRenderer</renderer>
+	</ioobject>
+	
+	<ioobject
 		name="DotProM"
 		class="org.rapidprom.ioobjects.DotIOObject"
 		reportable="true">

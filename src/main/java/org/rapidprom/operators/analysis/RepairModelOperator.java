@@ -7,13 +7,20 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.deckfour.xes.classification.XEventClassifier;
+import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.modelrepair.parameters.RepairConfiguration;
 import org.processmining.modelrepair.plugins.Uma_RepairModel_Plugin;
+import org.processmining.modelrepair.plugins.align.PNLogReplayer;
+import org.processmining.models.connections.petrinets.EvClassLogPetrinetConnection;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.elements.Place;
 import org.processmining.models.semantics.petrinet.Marking;
+import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
+import org.processmining.plugins.petrinet.replayresult.PNRepResult;
 import org.rapidprom.external.connectors.prom.RapidProMGlobalContext;
+import org.rapidprom.ioobjects.PNRepResultIOObject;
 import org.rapidprom.ioobjects.PetriNetIOObject;
 import org.rapidprom.ioobjects.XLogIOObject;
 import org.rapidprom.operators.abstr.AbstractRapidProMEventLogBasedOperator;
@@ -137,9 +144,12 @@ public class RepairModelOperator extends AbstractRapidProMEventLogBasedOperator 
 			e.printStackTrace();
 		}
 
+		PNRepResult replayresult = (PNRepResult)result[2];
+		
 		PetriNetIOObject output = new PetriNetIOObject((Petrinet) result[0], (Marking) result[1], null, pluginContext);
 
 		outputPetrinet.deliver(output);
+		
 
 		logger.log(Level.INFO,
 				"End: repair model using event log (" + (System.currentTimeMillis() - time) / 1000 + " sec)");
@@ -186,7 +196,7 @@ public class RepairModelOperator extends AbstractRapidProMEventLogBasedOperator 
 			repairConfiguration.globalCostAlignment = getParameterAsBoolean(PARAMETER_4_KEY);
 			repairConfiguration.globalCost_maxIterations = getParameterAsInt(PARAMETER_8_KEY);
 			repairConfiguration.alignAlignments = getParameterAsBoolean(PARAMETER_5_KEY);
-
+			
 		} catch (UndefinedParameterError e) {
 			e.printStackTrace();
 		}

@@ -107,9 +107,9 @@ public class RepairLogWithAlignmentOperator extends Operator {
 							label = align.getLogView().getActivity();					
 							String ml = "Move_log_";
 							alignLabel = ml.concat(label.replaceAll(" ", "_"));
-//							System.out.println("Break move log " + alignLabel);
+							//System.out.println("Break move log " + alignLabel);
 							if (!valueAsList.isEmpty() && valueAsList.contains(alignLabel)){
-//								System.out.println("Break move log " + label);
+								//System.out.println("Break move log " + label);
 								break;
 							}else {
 								params.getLogMoves().add(label);
@@ -120,7 +120,7 @@ public class RepairLogWithAlignmentOperator extends Operator {
 							String sm = "Sync_move_";
 							alignLabel = sm.concat(label.replaceAll(" ", "_"));
 							if (!valueAsList.isEmpty() && valueAsList.contains(alignLabel)){
-								System.out.println("Break no good move " + label);
+								//System.out.println("Break no good move " + label);
 								break;
 							}else{
 								params.getSyncMoves().add(label);
@@ -130,9 +130,9 @@ public class RepairLogWithAlignmentOperator extends Operator {
 							label = align.getProcessView().getActivity();
 							String mm = "Move_model_";
 							alignLabel = mm.concat(label.replaceAll(" ", "_"));
-//							System.out.println("Break move model " + alignLabel);
+							//System.out.println("Break move model " + alignLabel);
 							if (!valueAsList.isEmpty() && valueAsList.contains(alignLabel)) {	
-//								System.out.println("Break move model " + label);
+								//System.out.println("Break move model " + label);
 								break;
 							}else {
 								params.getModelMoves().add(label);

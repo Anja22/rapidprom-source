@@ -144,7 +144,6 @@ public class RepairModelOperator extends AbstractRapidProMEventLogBasedOperator 
 			e.printStackTrace();
 		}
 
-		PNRepResult replayresult = (PNRepResult)result[2];
 		
 		PetriNetIOObject output = new PetriNetIOObject((Petrinet) result[0], (Marking) result[1], null, pluginContext);
 

@@ -178,8 +178,13 @@ public class ExtractNodesOperator extends Operator{
 				String traceId = idMapping.mapIndex((int)example.getId());
 				
 				for(Attribute attr: example.getAttributes()) {
-					String name = attr.getName();	
+					String name = attr.getName();
+					if (attr.isNominal()) {
 					variableValues.put(name, (Object) example.getNominalValue(attr));
+					}else {
+					variableValues.put(name, (Object) example.getNumericalValue(attr));
+					}
+					
 				}
 				
 				for(j=0;j<exprArray.length;j++)

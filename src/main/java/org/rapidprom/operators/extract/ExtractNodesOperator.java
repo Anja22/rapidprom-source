@@ -132,6 +132,7 @@ public class ExtractNodesOperator extends Operator{
 		  
 		 	ExampleSet filteredExampleSet = filter(exampleSet);
 		 	LinkedList<String> validNodeValues = new LinkedList<String>();
+		 	LinkedList<String> invalidNodeValues = new LinkedList<String>();
 		 
 		 	for (Example example : filteredExampleSet) {
 			
@@ -145,15 +146,15 @@ public class ExtractNodesOperator extends Operator{
 		 	if (listExpressions==null)
 				return null;
 		 	
-		 	List<Pair<String,GuardExpression>> toRemove = new LinkedList<Pair<String,GuardExpression>>();
-		 	
-		 	for(Pair<String, GuardExpression> entry : listExpressions)
-			{	
-				if(!validNodeValues.contains(entry.getFirst())) {
-					toRemove.add(entry);
-				}
-			}
-		 	listExpressions.removeAll(toRemove);
+//		 	List<Pair<String,GuardExpression>> toRemove = new LinkedList<Pair<String,GuardExpression>>();
+//		 	
+//		 	for(Pair<String, GuardExpression> entry : listExpressions)
+//			{	
+//				if(!validNodeValues.contains(entry.getFirst())) {
+//					toRemove.add(entry);
+//				}
+//			}
+//		 	listExpressions.removeAll(toRemove);
 			
 			int size=listExpressions.size();
 			
@@ -169,13 +170,14 @@ public class ExtractNodesOperator extends Operator{
 					retValue[j++]=XFactoryRegistry.instance().currentDefault().createLog();
 			}
 			
-			NominalMapping idMapping = filteredExampleSet.getAttributes().getId().getMapping();
+			//NominalMapping idMapping = filteredExampleSet.getAttributes().getId().getMapping();
+			NominalMapping idMapping = exampleSet.getAttributes().getId().getMapping();
 			
 			//for each example in the Exampleset
-			for(Example example : filteredExampleSet){
+			//for(Example example : filteredExampleSet){
+			for(Example example : exampleSet){
 				
 				final Hashtable<String,Object> variableValues=new Hashtable<String, Object>();
-				String traceId = idMapping.mapIndex((int)example.getId());
 				
 				for(Attribute attr: example.getAttributes()) {
 					String name = attr.getName();
@@ -187,11 +189,12 @@ public class ExtractNodesOperator extends Operator{
 					
 				}
 				
+				String traceId = idMapping.mapIndex((int)example.getId());
+				String label = example.getNominalValue(example.getAttributes().getLabel());
+				
 				for(j=0;j<exprArray.length;j++)
-				{
-					LinkedList<String> traceIds = new LinkedList<String>();
-					
-					if(exprArray[j].isTrue(variableValues))
+				{					
+					if(exprArray[j].isTrue(variableValues)&&objectArray[j].equals(label))
 					{	 
 						
 						for(XTrace t : log) {
@@ -203,10 +206,22 @@ public class ExtractNodesOperator extends Operator{
 							}
 						}
 					}
+					
+					
 				}
 			}
-
-			return new Pair<GuardExpression[],XLog[]>(exprArray,retValue);
+			
+			for(j=0;j<exprArray.length;j++)
+			{
+				if(!validNodeValues.contains(objectArray[j])){
+					exprArray[j]=null;
+				}
+				
+			}
+			
+			Pair<GuardExpression[],XLog[]> pairs = new Pair<GuardExpression[],XLog[]>(exprArray,retValue);
+			
+			return pairs;
 				
 		}
 	 

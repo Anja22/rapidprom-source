@@ -46,8 +46,8 @@ public class RepairLogWithAlignmentOperator extends Operator {
 	
 	private InputPort alignmentInput = getInputPorts().createPort("alignments (ProM ResultReplay)", ResultReplayIOObject.class);
 	private InputPort modelInput = getInputPorts().createPort("model (DataPetriNet)", PetriNetIOObject.class);
-//	private InputPort extractInput = getInputPorts().createPort("guard expression (WekaTree)", GuardExpressionIOObject.class);
 	private InputPort extractInput = getInputPorts().createPort("repair rules");
+	private InputPort extractInput2 = getInputPorts().createPort("guard expression (WekaTree)", GuardExpressionIOObject.class);
 	private OutputPort logOutput = getOutputPorts().createPort("event log (ProM Event Log)");
 	
 	
@@ -75,10 +75,11 @@ public class RepairLogWithAlignmentOperator extends Operator {
 		if(getParameterAsString(RULESOURCE).equals(DECISIONTREE)) {
 			GuardExpressionIOObject expressionIOObject = extractInput.getData(GuardExpressionIOObject.class);
 			GuardExpression expression = expressionIOObject.getArtifact();
-			config = getConfiguration(alignments,expression);
+			config = getConfiguration(alignments,expression, expressionIOObject.getGoodValue());
 		}else {
 			FrequentItemSets fiSet = extractInput.getData(FrequentItemSets.class);
-			config = getConfiguration(alignments,fiSet);
+			GuardExpressionIOObject expressionIOObject = extractInput2.getData(GuardExpressionIOObject.class);
+			config = getConfiguration(alignments,fiSet, expressionIOObject.getGoodValue());
 		}
 		
 				
@@ -147,12 +148,16 @@ public class RepairLogWithAlignmentOperator extends Operator {
 		return params;
 	}
 	
-	private AlignmentBasedLogRepairParametersImpl getConfiguration(ResultReplay alignments,GuardExpression expression) {
+	private AlignmentBasedLogRepairParametersImpl getConfiguration(ResultReplay alignments,GuardExpression expression,boolean relevantExpression) {
 		
+		List<String> valueAsList = new LinkedList<String>();
+		
+		if (relevantExpression == true) {
 		String guard = expression.toString();
 		String[] value = guard.replace("(", "").replace(")", "").replace("==","").replace("!=","").replaceAll("\"[0-9]\"","").replaceAll("\"[0-9].[0-9]\"","").trim().split("&&");
-		List<String> valueAsList = Arrays.asList(value);
-		
+		valueAsList = Arrays.asList(value);
+		} 
+
 //		for (String values : valueAsList) {
 //			System.out.println(values);
 //		}
@@ -160,33 +165,34 @@ public class RepairLogWithAlignmentOperator extends Operator {
 		return getConfiguration(alignments,valueAsList);
 	}
 	
-	private AlignmentBasedLogRepairParametersImpl getConfiguration(ResultReplay alignments,FrequentItemSets frequentItemSets) {
+	private AlignmentBasedLogRepairParametersImpl getConfiguration(ResultReplay alignments,FrequentItemSets frequentItemSets,boolean relevantExpression) {
 		
 		List<String> valueAsList = new LinkedList<String>();
-		
-		if (frequentItemSets.size() > 0) {
-			
-			int maxSize = frequentItemSets.getMaximumSetSize();
-			
-			for (FrequentItemSet itemSet : frequentItemSets) {
+		if (relevantExpression == true) {
+			if (frequentItemSets.size() > 0) {
 				
-				//TODO get biggest frequentset
-				if(itemSet.getNumberOfItems()==maxSize) {
+				int maxSize = frequentItemSets.getMaximumSetSize();
+				
+				for (FrequentItemSet itemSet : frequentItemSets) {
 					
-					String[] value = itemSet.getItemsAsString().split(", ");
-					valueAsList = Arrays.asList(value);
-					
-					for (String values : valueAsList) {
-						System.out.println(values);
+					//TODO get biggest frequentset
+					if(itemSet.getNumberOfItems()==maxSize) {
+						
+						String[] value = itemSet.getItemsAsString().split(", ");
+						valueAsList = Arrays.asList(value);
+						
+						for (String values : valueAsList) {
+							System.out.println(values);
+						}
+						
+		//					System.out.println("Size: "+ itemSet.getNumberOfItems() + " Items: " + itemSet.getItemsAsString());
+		//					valueAsList.add(itemSet.getItemsAsString());
 					}
 					
-//					System.out.println("Size: "+ itemSet.getNumberOfItems() + " Items: " + itemSet.getItemsAsString());
-//					valueAsList.add(itemSet.getItemsAsString());
 				}
 				
 			}
-			
-		}
+		}	
 		
 //		String guard = expression.toString();
 //		String[] value = guard.replace("(", "").replace(")", "").replace("==","").replace("!=","").replaceAll("\"[0-9]\"","").replaceAll("\"[0-9].[0-9]\"","").trim().split("&&");

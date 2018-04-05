@@ -81,8 +81,17 @@ public class NodeExtractionIterator extends OperatorChain{
 			modelInnerSource.deliver(modelInput.getData(DataPetriNetIOObject.class));
 			
 			GuardExpression expression = extract.getFirst()[iteration];
-			System.out.println(expression.toString());
-			ruleInnerSource.deliver(new GuardExpressionIOObject(expression, context));
+			//System.out.println(expression.toString());
+			if(expression!=null) {
+				GuardExpressionIOObject guardIOObject = new GuardExpressionIOObject(expression, context);
+				guardIOObject.setGoodValue(true);
+				ruleInnerSource.deliver(guardIOObject);
+			}else {
+				GuardExpressionIOObject guardIOObject = new GuardExpressionIOObject(expression, context);
+				guardIOObject.setGoodValue(false);
+				ruleInnerSource.deliver(guardIOObject);
+			}
+				
 			
 			XLog log = extract.getSecond()[iteration];
 			System.out.println("XLog"+ iteration + " size: " + log.size());

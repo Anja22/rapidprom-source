@@ -71,7 +71,7 @@ public class ExtractNodesOperator extends Operator{
 	private InputPort exampleSetInput = getInputPorts().createPort("example set (Training set for the model)", ExampleSet.class);
 	private InputPort eventlogInput = getInputPorts().createPort("event log (ProM Event Log)", XLogIOObject.class);
 
-	private OutputPort passthroughTreeModel = getOutputPorts().createPort("model (W-J48 Tree)");
+	//private OutputPort passthroughTreeModel = getOutputPorts().createPort("model (W-J48 Tree)");
 	private OutputPort extractOutput = getOutputPorts().createPort("node extraction");
 	
 	private static final String REMAINING = "Remaining Instances";
@@ -89,7 +89,7 @@ public class ExtractNodesOperator extends Operator{
 	public ExtractNodesOperator(OperatorDescription description) {
 		super(description);
 		
-		getTransformer().addRule(new GenerateNewMDRule(passthroughTreeModel, WekaClassifier.class));
+		//getTransformer().addRule(new GenerateNewMDRule(passthroughTreeModel, WekaClassifier.class));
 		getTransformer().addRule(new GenerateNewMDRule(extractOutput, WekaTreeExtractionIOObject.class));
 		
 	}
@@ -119,7 +119,7 @@ public class ExtractNodesOperator extends Operator{
 			e.printStackTrace();
 		}
 		
-		passthroughTreeModel.deliver(wekaObject);
+		//passthroughTreeModel.deliver(wekaObject);
 		
 		
 		logger.log(Level.INFO, "End: Extract Nodes ("+ (System.currentTimeMillis() - time) / 1000 + " sec)");
@@ -131,8 +131,7 @@ public class ExtractNodesOperator extends Operator{
 		{
 		  
 		 	ExampleSet filteredExampleSet = filter(exampleSet);
-		 	LinkedList<String> validNodeValues = new LinkedList<String>();
-		 	LinkedList<String> invalidNodeValues = new LinkedList<String>();
+		 	LinkedList<String> validNodeValues = new LinkedList<String>();		 	
 		 
 		 	for (Example example : filteredExampleSet) {
 			
@@ -322,7 +321,7 @@ public class ExtractNodesOperator extends Operator{
 		public List<ParameterType> getParameterTypes() {
 			List<ParameterType> params = super.getParameterTypes();
 			
-			ParameterType type = new ParameterTypeFilter(PARAMETER_FILTER, "Define the values of the nodes that should be extracted",
+			ParameterType type = new ParameterTypeFilter(PARAMETER_FILTER, "Define the values which should be considered positive during the extraction",
 					exampleSetInput, true);
 			type.setExpert(false);
 			params.add(type);

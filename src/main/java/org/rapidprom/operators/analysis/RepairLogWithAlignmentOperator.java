@@ -154,13 +154,13 @@ public class RepairLogWithAlignmentOperator extends Operator {
 		
 		if (relevantExpression == true) {
 		String guard = expression.toString();
-		String[] value = guard.replace("(", "").replace(")", "").replace("==","").replace("!=","").replaceAll("\"[0-9]\"","").replaceAll("\"[0-9].[0-9]\"","").trim().split("&&");
+		String[] value = guard.replace("(", "").replace(")", "").replace("==","").replace("!=","").replace("<=","").replace(">","").replaceAll("\"[0-9]\"","").replaceAll("\"[0-9].[0-9]\"","").replaceAll("[0-9].[0-9]","").trim().split("&&");
 		valueAsList = Arrays.asList(value);
 		} 
 
-//		for (String values : valueAsList) {
-//			System.out.println(values);
-//		}
+		for (String values : valueAsList) {
+			System.out.println(values);
+		}
 				
 		return getConfiguration(alignments,valueAsList);
 	}

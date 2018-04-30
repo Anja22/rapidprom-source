@@ -33,7 +33,7 @@ public class NodeExtractionIterator extends OperatorChain{
 	private InputPort extractionInput = getInputPorts().createPort("node extraction",WekaTreeExtractionIOObject.class);
 	
 	private final OutputPort logOutput = getOutputPorts().createPort("event log (ProM Event Log)");
-	private final OutputPort frequentItemOutput = getOutputPorts().createPort("frequent Item set");
+	//private final OutputPort frequentItemOutput = getOutputPorts().createPort("frequent Item set");
 	
 //	private final OutputPort alignmentInnerSource = getSubprocess(0).getInnerSources().createPort("alignments (ProM ResultReplay)");
 	private final OutputPort sublogInnerSource = getSubprocess(0).getInnerSources().createPort("event sublog (ProM Event Log)");
@@ -41,7 +41,7 @@ public class NodeExtractionIterator extends OperatorChain{
 	private final OutputPort ruleInnerSource = getSubprocess(0).getInnerSources().createPort("guard expression (WekaTree)");
 	
 	private final InputPort logInnerSource = getSubprocess(0).getInnerSinks().createPort("event log (ProM Event Log)");
-	private final InputPort frequentItemSetInnerSource = getSubprocess(0).getInnerSinks().createPort("frequent Item set");
+	//private final InputPort frequentItemSetInnerSource = getSubprocess(0).getInnerSinks().createPort("frequent Item set");
 	
 //	int counter;
 	
@@ -130,9 +130,9 @@ public class NodeExtractionIterator extends OperatorChain{
 				}
 //				System.out.println("Counter: " + counter);
 				
-				if(frequentItemSetInnerSource.isConnected()){
-					frequentItemOutput.deliver(frequentItemSetInnerSource.getAnyDataOrNull());
-				}
+//				if(frequentItemSetInnerSource.isConnected()){
+//					frequentItemOutput.deliver(frequentItemSetInnerSource.getAnyDataOrNull());
+//				}
 				
 			}
 			

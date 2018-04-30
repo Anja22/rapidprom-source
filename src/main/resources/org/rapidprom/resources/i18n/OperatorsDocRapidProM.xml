@@ -775,7 +775,7 @@
 		<synopsis>This operator extracts the moves of the optimal alignment per trace and converts them to an ExampleSet.</synopsis>
 	</operator>
 	<operator>
-		<name>Extract elements from tree (Exampleset)</name>
+		<name>Extract log clusters from tree (Exampleset)</name>
 		<key>extract_nodes_from_tree</key>
 		<synopsis>This operator extracts information about which element of the training set belongs to which leave of the tree.</synopsis>
 	</operator>
@@ -797,8 +797,8 @@
 	</operator>
 	
 	<operator>
-		<name>Loop Node Extraction</name>
-		<synopsis>This operator loops over the nodes extracted from a WekaTree and applies its inner operators.</synopsis>
+		<name>Loop Log Clusters</name>
+		<synopsis>This operator loops over the log clusters extracted from a WekaTree and applies its inner operators.</synopsis>
 		<help>The output is a merged log.</help>
 		<key>loop_node_extraction</key>
 	</operator>

@@ -203,6 +203,7 @@ public class AlignmentToExampleSetOperator extends Operator {
 		for (int ii=0; ii<attributes.size(); ii++) {
 			attribArray[ii] = attributes.get(ii);
 		}
+		
 		metaData.setNumberOfExamples(xlog.size());
 		this.metaData = metaData;
 		this.attributes = attribArray;
